@@ -1,4 +1,4 @@
 ﻿flask
 mysql
 flask_wtf
-gunicore
+gunicorn
