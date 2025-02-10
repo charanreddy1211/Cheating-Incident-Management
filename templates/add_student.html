@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Student</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<style>
+    h1 {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+
+</style>
+<body>
+    <header>
+        <h1>Cheating Incident Management System</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Admin Dashboard</a></li>
+                <li><a href="/add_student">Add Student</a></li>
+                <li><a href="/admin">Log Incidents</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flash-messages">
+                {% for category, message in messages %}
+                    <p class="flash {{ category }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <h1>Add Student</h1>
+    <form action="/add_student" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-container">
+            <!-- Column 1 -->
+            <div class="column">
+                <label for="name">Student Name:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="usn">USN:</label>
+                <input type="text" id="usn" name="usn" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="mobile_number">Mobile Number:</label>
+                <input type="text" id="mobile_number" name="mobile_number" required>
+
+                <label for="course">Course:</label>
+                <input type="text" id="course" name="course" required>
+            </div>
+
+            <!-- Column 2 -->
+            <div class="column">
+                <label for="specialization">Specialization:</label>
+                <input type="text" id="specialization" name="specialization">
+
+                <label for="current_year">Current Year:</label>
+                <input type="number" id="current_year" name="current_year" min="1" max="4" required>
+
+                <label for="current_sem">Current Semester:</label>
+                <input type="number" id="current_sem" name="current_sem" min="1" max="8" required>
+
+                <label for="department">Department:</label>
+                <input type="text" id="department" name="department" required>
+
+                <label for="proctor">Proctor:</label>
+                <input type="text" id="proctor" name="proctor" required>
+            </div>
+        </div>
+
+        <button type="submit">Add Student</button>
+    </form>
+
+    <!-- JavaScript to Auto-hide Flash Messages after 6 seconds -->
+    <script>
+        setTimeout(() => {
+            let flashMessages = document.getElementById('flash-messages');
+            if (flashMessages) {
+                flashMessages.style.display = 'none';
+            }
+        }, 6000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cheating Incident Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+</head>
+<body>
+    <header>
+        <h1>Cheating Incident Management System</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Admin Dashboard</a></li>
+                <li><a href="/add_student">Add Student</a></li>
+                <li><a href="/admin">Log Incidents</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div class="content">
+        <p>Welcome to the Cheating Incident Management System.</p>
+
+        <input type="text" id="searchInput" placeholder="Search for students or incidents..." onkeyup="searchTables()">
+
+        <h2>Incidents</h2>
+        <table id="incidentsTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>USN</th>
+                    <th>Fine Amount</th>
+                    <th>Meeting Schedule</th>
+                    <th>Status</th>
+                    <th>Exam Name</th>
+                    <th>Exam Date</th>
+                    <th>Invigilator Name</th>
+                    <th>Squad Name</th>
+                    <th>Exam Room</th>
+                    <th>Mode of Cheating</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for incident in incidents %}
+                <tr>
+                    <td>{{ incident[0] }}</td>
+                    <td>{{ incident[1] }}</td>
+                    <td>{{ incident[2] }}</td>
+                    <td>{{ incident[3] }}</td>
+                    <td>
+                        <select class="statusDropdown" data-incident-id="{{ incident[11] }}" onchange="updateStatus(this)">
+                            <option value="Pending" {% if incident[4] == 'Pending' %}selected{% endif %}>Pending</option>
+                            <option value="Done" {% if incident[4] == 'Done' %}selected{% endif %}>Done</option>
+                            <option value="Not Attended" {% if incident[4] == 'Not Attended' %}selected{% endif %}>Not Attended</option>
+                        </select>
+                    </td>
+                    <td>{{ incident[5] }}</td>
+                    <td>{{ incident[6] }}</td>
+                    <td>{{ incident[7] }}</td>
+                    <td>{{ incident[8] }}</td>
+                    <td>{{ incident[9] }}</td>
+                    <td>{{ incident[10] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Students</h2>
+        <table id="studentsTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>USN</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>{{ student[1] }}</td>
+                    <td>{{ student[2] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function searchTables() {
+            const query = document.getElementById("searchInput").value.toLowerCase();
+
+            const incidentsTable = document.getElementById("incidentsTable");
+            const incidentRows = incidentsTable.getElementsByTagName("tr");
+
+            for (let i = 1; i < incidentRows.length; i++) {
+                const row = incidentRows[i];
+                const cells = row.getElementsByTagName("td");
+                let match = false;
+
+                for (let j = 0; j < cells.length; j++) {
+                    const cellText = cells[j].textContent.toLowerCase();
+                    if (cellText.includes(query)) {
+                        match = true;
+                        break;
+                    }
+                }
+
+                if (match) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            }
+
+            const studentsTable = document.getElementById("studentsTable");
+            const studentRows = studentsTable.getElementsByTagName("tr");
+
+            for (let i = 1; i < studentRows.length; i++) {
+                const row = studentRows[i];
+                const cells = row.getElementsByTagName("td");
+                let match = false;
+
+                for (let j = 0; j < cells.length; j++) {
+                    const cellText = cells[j].textContent.toLowerCase();
+                    if (cellText.includes(query)) {
+                        match = true;
+                        break;
+                    }
+                }
+
+                if (match) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            }
+        }
+
+        function updateStatus(dropdown) {
+            const incidentId = dropdown.getAttribute("data-incident-id");
+            const newStatus = dropdown.value;
+            const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+
+            console.log(`Updating status for incident ID: ${incidentId} to ${newStatus}`);  // Debugging
+            console.log(`CSRF Token: ${csrfToken}`);  // Debugging
+
+            // Send the updated status to the backend
+            fetch('/update_status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `incident_id=${incidentId}&new_status=${newStatus}&csrf_token=${csrfToken}`,
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Status updated successfully!');  // Debugging
+                    alert('Status updated successfully!');
+                } else {
+                    console.error('Failed to update status.');  // Debugging
+                    response.text().then(text => console.error(text));  // Log the error message
+                    alert('Failed to update status.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);  // Debugging
+                alert('An error occurred while updating the status.');
+            });
+        }
+
+    </script>
+</body>
+</html>
